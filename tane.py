@@ -1,4 +1,4 @@
-'''
+"""
 Implementation of the Functional Dependency Canonical Cover Miner TANE as described in:
 [1] Hutala et al. - TANE: An Efficient Algorithm for Discovering Functional Approximate Dependencies. 1999.
 
@@ -15,18 +15,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-'''
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
 
 from fca.defs.patterns.hypergraphs import TrimmedPartitionPattern
 from itertools import combinations
 import csv
 
 # Get reduce for Python 3+
-try:
-    from functools import reduce
-except ImportError:
-    pass
+from functools import reduce
 
 ##########################################################################################
 ## UTILS
@@ -50,14 +47,14 @@ def tostr(atts):
 ## CLASSES
 ##########################################################################################
 class PPattern(TrimmedPartitionPattern):
-    '''
+    """
     Represents the Stripped Partition
-    '''
+    """
     @classmethod
     def intersection(cls, desc1, desc2):
-        '''
+        """
         Procedure STRIPPED_PRODUCT defined in [1]
-        '''
+        """
         new_desc = []
         T = {}
         S = {}
@@ -78,7 +75,7 @@ class PPattern(TrimmedPartitionPattern):
 
 
 class PartitionsManager(object):
-    '''
+    """
     Manages the cache of already calcualted partitions.
     [1] is not very specific on how to manage partititions and memory.
     Our solution is this class where partitions are registered and cached
@@ -90,33 +87,33 @@ class PartitionsManager(object):
     Only 3 phases have to be available at all time, the current, the previous and the next.
     As such, purge_old_level purges the cache of unused levels.
     Purge cache is called at the end of each TANE phase.
-    '''
+    """
     def __init__(self, T):
-        '''
+        """
         Initializes the cache
-        '''
+        """
         self.T = T
         self.cache = {0:None, 1:{(i,):j for i, j in enumerate(T)}}
         self.current_level = 1
 
     def new_level(self):
-        '''
+        """
         Creates a cache for the new level
-        '''
+        """
         self.current_level += 1
         self.cache[self.current_level] = {}
 
     def purge_old_level(self):
-        '''
+        """
         Memory wipe of unused cache
-        '''
+        """
         del self.cache[self.current_level-2]
 
     def register_partition(self, X, X0, X1):
-        '''
+        """
         Registers partition of attributes in X, using partitions 
         already calculated of attributes in X0 and X1
-        '''
+        """
         self.cache[len(X)][X] = PPattern.intersection(self.cache[len(X0)][X0], self.cache[len(X1)][X1])
 
     def check_partition_size(self, X, y, min_diff_values, max_lhs_size):
@@ -136,11 +133,11 @@ class PartitionsManager(object):
 
 
     def check_fd(self, X, y, min_diff_values, max_lhs_size):
-        '''
+        """
         Main difference with [1], we do not check using procedure "e" 
         to check and FD, but we use partition subsumption
         Seems more efficient
-        '''
+        """
         if not bool(X):
             return False
         left = self.cache[len(X)][X]
@@ -152,17 +149,17 @@ class PartitionsManager(object):
     def is_superkey(self, X):
         return not bool(self.cache[len(X)][X])
 
-class rdict(dict):
-    '''
+class Rdict(dict):
+    """
     Recursive dictionary implementing Cplus
-    '''
+    """
     def __init__(self, *args, **kwargs):
-        super(rdict, self).__init__(*args, **kwargs)
-        self.itemlist = super(rdict, self).keys()
+        super(Rdict, self).__init__(*args, **kwargs)
+        self.itemlist = super(Rdict, self).keys()
     def __getitem__(self, key):
         if key not in self:
             self[key] = self.recursive_search(key)
-        return super(rdict, self).__getitem__(key)
+        return super(Rdict, self).__getitem__(key)
 
     def recursive_search(self, key):
         return reduce(set.intersection, [self[tuple(key[:i]+key[i+1:])] for i in range(len(key))])
@@ -171,10 +168,10 @@ class rdict(dict):
 ## PROCEDURES
 ##########################################################################################
 def calculate_e(X, XA, R, checker):
-    '''
+    """
     Procedure e defined in [1]
     Not in use now
-    '''
+    """
     e = 0
     T = {}
     if not bool(X):
@@ -192,9 +189,9 @@ def calculate_e(X, XA, R, checker):
     return float(e)/len(R)
 
 def prefix_blocks(L):
-    '''
+    """
     Procedure PREFIX_BLOCKS described in [1]
-    '''
+    """
     blocks = {}
     for atts in L:
         blocks.setdefault(atts[:-1],[]).append(atts)
@@ -205,9 +202,9 @@ def prefix_blocks(L):
 ##########################################################################################
 
 class TANE(object):
-    '''
+    """
     As seen on TV [1]
-    '''
+    """
     def __init__(self, T, min_diff_values, max_lhs_size):
         self.T = T
         self.min_diff_values = min_diff_values
@@ -218,14 +215,14 @@ class TANE(object):
         self.R = range(len(T))
 
 
-        self.Cplus = rdict()
+        self.Cplus = Rdict()
         self.Cplus[tuple([])] = set(self.R)
 
 
     def compute_dependencies(self, L):
-        '''
+        """
         Procedure COMPUTE_DEPENDENCIES described in [1]
-        '''
+        """
         for X in L:
             if len(X) <= 1:
                 continue
@@ -238,9 +235,9 @@ class TANE(object):
                     map(self.Cplus[X].remove, filter(lambda i: i not in X, self.Cplus[X]))
 
     def prune(self, L):
-        '''
+        """
         Procedure PRUNE described in [1]
-        '''
+        """
         clean_idx = set([])
         for X in L:
             if not bool(self.Cplus[X]):
@@ -256,22 +253,23 @@ class TANE(object):
         for X in clean_idx:
             L.remove(X)
 
-    def prefix_blocks(self, L):
-        '''
+    @staticmethod
+    def prefix_blocks(L):
+        """
         Procedure PREFIX_BLOCKS described in [1]
-        '''
+        """
         blocks = {}
         for atts in L:
             blocks.setdefault(atts[:-1],[]).append(atts)
         return blocks.values()
 
     def generate_next_level(self, L):
-        '''
+        """
         Procedure GENERATE_NEXT_LEVEL described in [1]
-        '''
+        """
         self.pmgr.new_level()
         next_L = set([])
-        for k in prefix_blocks(L):
+        for k in TANE.prefix_blocks(L):
             for i, j in combinations(k, 2):
                 if i[-1] < j[-1]:
                     X = i + (j[-1],)
@@ -285,15 +283,15 @@ class TANE(object):
         return next_L
 
     def memory_wipe(self):
-        '''
+        """
         FREE SOME MEMORY!!!
-        '''
+        """
         self.pmgr.purge_old_level()
 
     def run(self):
-        '''
+        """
         Procedure TANE in [1]
-        '''
+        """
         L1 = set([tuple([i]) for i in self.R])
         L = [None, L1]
         l = 1
