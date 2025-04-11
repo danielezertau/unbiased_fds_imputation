@@ -30,15 +30,17 @@ from functools import reduce
 ##########################################################################################
 def read_db(path, ignore_nulls):
     hashes = {}
+    num_lines = 0
     with open(path, 'r') as fin:
         reader = csv.DictReader(fin)
         for t, line in enumerate(reader):
             # Ignore lines with null values
             if "NULL" in line.values() and ignore_nulls:
                 continue
+            num_lines += 1
             for i, s in enumerate(line.values()):
                 hashes.setdefault(i, {}).setdefault(s, set([])).add(t)# [(i, s)] = len(hashes)
-        return [(list(hashes[k].values())) for k in sorted(hashes.keys())]
+        return [(list(hashes[k].values())) for k in sorted(hashes.keys())], num_lines
 
 def tostr(atts):
     return ''.join([chr(65+i) for i in atts])
@@ -88,11 +90,12 @@ class PartitionsManager(object):
     As such, purge_old_level purges the cache of unused levels.
     Purge cache is called at the end of each TANE phase.
     """
-    def __init__(self, T):
+    def __init__(self, T, table_size):
         """
         Initializes the cache
         """
         self.T = T
+        self.table_size = table_size
         self.cache = {0:None, 1:{(i,):j for i, j in enumerate(T)}}
         self.current_level = 1
 
