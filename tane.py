@@ -126,10 +126,10 @@ class PartitionsManager(object):
         if len(X) > max_lhs_size:
             return False
         # Ignore RHS with a small number of different values
-        if len(right) <= min_diff_values:
+        if len(right) < min_diff_values:
             return False
         # Ignore LHS with a small number of different values
-        if len(left) <= min_diff_values:
+        if len(left) < min_diff_values:
             return False
         else:
             return True
