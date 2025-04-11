@@ -135,7 +135,20 @@ class PartitionsManager(object):
             return True
 
 
-    def check_fd(self, X, y, min_diff_values, max_lhs_size):
+    def check_approx_fd(self, X_y, left, error_threshold):
+        # For each partition of X, find the size of the largest partition of X+y contained in it.
+        sum_max_sizes = 0
+        for X_partition in left:
+            for X_y_partition in self.cache[len(X_y)][X_y]:
+                if X_y_partition.issubset(X_partition):
+                    sum_max_sizes += len(X_y_partition)
+                    # partitions are sorting by decreasing size
+                    break
+        error = 1 - (sum_max_sizes / self.table_size)
+        return error <= error_threshold
+
+
+    def check_fd(self, X, y, min_diff_values, max_lhs_size, error_threshold):
         """
         Main difference with [1], we do not check using procedure "e" 
         to check and FD, but we use partition subsumption
@@ -147,6 +160,12 @@ class PartitionsManager(object):
         # Remove FDs with a small number of rows supporting them
         if not self.check_partition_size(X, y, min_diff_values, max_lhs_size):
             return False
+
+        X_y = tuple(sorted(X + (y, )))
+        # Approximate functional dependency
+        if error_threshold > 0:
+            return self.check_approx_fd(X_y, left, error_threshold)
+
         return PPattern.leq(left, self.T[y])
 
     def is_superkey(self, X):
@@ -208,13 +227,15 @@ class TANE(object):
     """
     As seen on TV [1]
     """
-    def __init__(self, T, min_diff_values, max_lhs_size):
+    def __init__(self, T, table_size, error_threshold, min_diff_values, max_lhs_size):
         self.T = T
+        self.table_size = table_size
+        self.error_threshold = error_threshold
         self.min_diff_values = min_diff_values
         self.max_lhs_size = max_lhs_size
         self.rules = []
 
-        self.pmgr = PartitionsManager(T)
+        self.pmgr = PartitionsManager(T, table_size)
         self.R = range(len(T))
 
 
@@ -232,7 +253,7 @@ class TANE(object):
             for y in self.Cplus[X].intersection(X):
                 a = X.index(y)
                 LHS = X[:a]+X[a+1:]
-                if self.pmgr.check_fd(LHS, y, self.min_diff_values, self.max_lhs_size):
+                if self.pmgr.check_fd(LHS, y, self.min_diff_values, self.max_lhs_size, self.error_threshold):
                     self.rules.append((LHS, y))
                     self.Cplus[X].remove(y)
                     map(self.Cplus[X].remove, filter(lambda i: i not in X, self.Cplus[X]))
