@@ -38,7 +38,7 @@ def read_db(path, ignore_nulls):
                 continue
             for i, s in enumerate(line.values()):
                 hashes.setdefault(i, {}).setdefault(s, set([])).add(t)# [(i, s)] = len(hashes)
-        return [PPattern.fix_desc(list(hashes[k].values())) for k in sorted(hashes.keys())]
+        return [(list(hashes[k].values())) for k in sorted(hashes.keys())]
 
 def tostr(atts):
     return ''.join([chr(65+i) for i in atts])
@@ -68,7 +68,7 @@ class PPattern(TrimmedPartitionPattern):
                     S[T[t]].add(t)
             for t in k:
                 if T.get(t, None) is not None:
-                    if len(S[T[t]]) > 1:
+                    if len(S[T[t]]) >= 1:
                         new_desc.append(S[T[t]])
                     S[T[t]] = set([])
         return new_desc
