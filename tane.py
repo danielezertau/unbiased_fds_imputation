@@ -166,7 +166,7 @@ class PartitionsManager(object):
         if error_threshold > 0:
             return self.check_approx_fd(X_y, left, error_threshold)
 
-        return PPattern.leq(left, self.T[y])
+        return len(left) == len(self.cache[len(X_y)][X_y])
 
     def is_superkey(self, X):
         return not bool(self.cache[len(X)][X])
