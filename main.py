@@ -1,8 +1,10 @@
 import os
 import time
 import pandas as pd
-from tane import *
+from src.tane import *
+from src.llm import *
 import pickle
+from tqdm.auto import tqdm
 
 def indices_to_attr_name(column_names, idxs):
     return column_names[list(idxs)].values
@@ -33,7 +35,7 @@ def get_tane_rules(csv_filename, cache_filename, min_partition_size, max_lhs_siz
     print ('\t=> {} Rules Found'.format(sum(len(v) for v in func_deps.values())))
     return func_deps
 
-def find_fds(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_threshold=0.0,ignore_nulls=True,
+def find_fds(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_threshold=0.0, ignore_nulls=True,
              print_results=True):
     column_names = get_col_names(csv_filename)
 
@@ -45,6 +47,8 @@ def find_fds(csv_filename, cache_filename, min_partition_size, max_lhs_size, err
                                    ignore_nulls)
     if print_results:
         print_func_deps(func_deps, column_names)
+    
+    return func_deps
 
 
 if __name__ == '__main__':

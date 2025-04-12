@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from fca.defs.patterns.hypergraphs import TrimmedPartitionPattern
 from itertools import combinations
 import csv
+from tqdm.auto import tqdm
 
 # Get reduce for Python 3+
 from functools import reduce
@@ -247,7 +248,7 @@ class TANE(object):
         """
         Procedure COMPUTE_DEPENDENCIES described in [1]
         """
-        for X in L:
+        for X in tqdm(L):
             if len(X) <= 1:
                 continue
             for y in self.Cplus[X].intersection(X):
