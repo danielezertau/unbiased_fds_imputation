@@ -50,21 +50,23 @@ def find_fds(csv_filename, cache_filename, min_partition_size, max_lhs_size, err
     
     return func_deps
 
+def main(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_threshold):
+    col_names = get_col_names(csv_filename)
+    func_deps = find_fds(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_threshold)
+    load_env_file()
+    print("NOT BIASED FDS:")
+    for lhs, rhs_group in tqdm(func_deps.items()):
+        for rhs in rhs_group:
+            if not is_fd_biased(lhs=", ".join(indices_to_attr_name(col_names, lhs)),
+                                rhs=", ".join(indices_to_attr_name(col_names, (rhs, )))):
+                print(f"{indices_to_attr_name(col_names, lhs)} -> {indices_to_attr_name(col_names, (rhs, ))}")
+
 
 if __name__ == '__main__':
-    load_env_file()
     MIN_PARTITION_SIZE = 1
     MAX_LHS_SIZE = 3
     ERROR_THRESHOLD = 0.01
     data_filename = "adult-rand-1000"
     CSV_FILENAME = f"./data/{data_filename}.csv"
     CACHE_FILENAME = f"./data/cache/{data_filename}-{ERROR_THRESHOLD}.pkl"
-    col_names = get_col_names(CSV_FILENAME)
-    func_deps = find_fds(CSV_FILENAME, CACHE_FILENAME, MIN_PARTITION_SIZE, MAX_LHS_SIZE, ERROR_THRESHOLD)
-    
-    print("NOT BIASED FDS:")
-    for lhs, rhs_group in tqdm(func_deps.items()):
-        for rhs in rhs_group:
-            if not is_fd_biased(lhs=", ".join(indices_to_attr_name(col_names, lhs)),
-                         rhs=", ".join(indices_to_attr_name(col_names, (rhs, )))):
-                print(f"{indices_to_attr_name(col_names, lhs)} -> {indices_to_attr_name(col_names, (rhs, ))}")
+    main(CSV_FILENAME, CACHE_FILENAME, MIN_PARTITION_SIZE, MAX_LHS_SIZE, ERROR_THRESHOLD)
