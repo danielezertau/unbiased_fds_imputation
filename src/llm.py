@@ -32,9 +32,9 @@ def get_chain():
     return prompt | llm
 
 def is_fd_biased(lhs, rhs, retries=2):
-    # If the LLM can't answer, return None as an indication of not knowing
+    # If the LLM can't answer, consider it as non biased
     if retries == 0:
-        return None
+        return False
     chain = get_chain()
     llm_output = chain.invoke({
         "lhs": lhs,
