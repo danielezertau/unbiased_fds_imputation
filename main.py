@@ -18,9 +18,9 @@ def print_func_deps(func_deps, column_names):
 def get_col_names(filename):
     return pd.read_csv(filename).columns
 
-def get_tane_rules(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_threshold, ignore_nulls):
+def get_tane_rules(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold, ignore_nulls):
     t, table_size = read_db(csv_filename, ignore_nulls)
-    tane = TANE(t, table_size=table_size, error_threshold=error_threshold, min_diff_values=min_partition_size, max_lhs_size=max_lhs_size)
+    tane = TANE(t, table_size=table_size, error_threshold=error_threshold, min_diff_values=min_num_partitions, max_lhs_size=max_lhs_size)
     t0 = time.time()
     tane.run()
     print ("\t=> Execution Time: {} seconds".format(time.time()-t0))
@@ -35,7 +35,7 @@ def get_tane_rules(csv_filename, cache_filename, min_partition_size, max_lhs_siz
     print ('\t=> {} Rules Found'.format(sum(len(v) for v in func_deps.values())))
     return func_deps
 
-def find_fds(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_threshold=0.0, ignore_nulls=True,
+def find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold=0.0, ignore_nulls=True,
              print_results=True):
     column_names = get_col_names(csv_filename)
 
@@ -43,16 +43,16 @@ def find_fds(csv_filename, cache_filename, min_partition_size, max_lhs_size, err
         with open(cache_filename, "rb") as f:
             func_deps = pickle.load(f)
     else:
-        func_deps = get_tane_rules(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_threshold,
+        func_deps = get_tane_rules(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold,
                                    ignore_nulls)
     if print_results:
         print_func_deps(func_deps, column_names)
     
     return func_deps
 
-def main(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_threshold):
+def main(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold):
     col_names = get_col_names(csv_filename)
-    func_deps = find_fds(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_threshold)
+    func_deps = find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold)
     load_env_file()
     biased_fds = {}
     unbiased_fds = {}
@@ -73,10 +73,10 @@ def main(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_t
 
 
 if __name__ == '__main__':
-    MIN_PARTITION_SIZE = 1
+    MIN_NUM_PARTITIONS = 3
     MAX_LHS_SIZE = 4
     ERROR_THRESHOLD = 0.01
     data_filename = "adult-rand-1000"
     CSV_FILENAME = f"./data/{data_filename}.csv"
-    CACHE_FILENAME = f"./data/cache/{data_filename}-{MAX_LHS_SIZE}-{ERROR_THRESHOLD}.pkl"
-    main(CSV_FILENAME, CACHE_FILENAME, MIN_PARTITION_SIZE, MAX_LHS_SIZE, ERROR_THRESHOLD)
+    CACHE_FILENAME = f"./data/cache/{data_filename}-{MAX_LHS_SIZE}-{MIN_NUM_PARTITIONS}-{ERROR_THRESHOLD}.pkl"
+    main(CSV_FILENAME, CACHE_FILENAME, MIN_NUM_PARTITIONS, MAX_LHS_SIZE, ERROR_THRESHOLD)
