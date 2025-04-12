@@ -78,5 +78,5 @@ if __name__ == '__main__':
     ERROR_THRESHOLD = 0.01
     data_filename = "adult-rand-1000"
     CSV_FILENAME = f"./data/{data_filename}.csv"
-    CACHE_FILENAME = f"./data/cache/{data_filename}-{ERROR_THRESHOLD}.pkl"
+    CACHE_FILENAME = f"./data/cache/{data_filename}-{MAX_LHS_SIZE}-{ERROR_THRESHOLD}.pkl"
     main(CSV_FILENAME, CACHE_FILENAME, MIN_PARTITION_SIZE, MAX_LHS_SIZE, ERROR_THRESHOLD)
