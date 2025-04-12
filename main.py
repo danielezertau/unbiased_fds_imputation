@@ -54,12 +54,22 @@ def main(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_t
     col_names = get_col_names(csv_filename)
     func_deps = find_fds(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_threshold)
     load_env_file()
-    print("NOT BIASED FDS:")
+    biased_fds = {}
+    unbiased_fds = {}
+
     for lhs, rhs_group in tqdm(func_deps.items()):
         for rhs in rhs_group:
-            if not is_fd_biased(lhs=", ".join(indices_to_attr_name(col_names, lhs)),
+            if is_fd_biased(lhs=", ".join(indices_to_attr_name(col_names, lhs)),
                                 rhs=", ".join(indices_to_attr_name(col_names, (rhs, )))):
-                print(f"{indices_to_attr_name(col_names, lhs)} -> {indices_to_attr_name(col_names, (rhs, ))}")
+                biased_fds[lhs] = (rhs, )
+            else:
+                unbiased_fds[lhs] = (rhs, )
+
+    print("BIASED FDS:")
+    print_func_deps(biased_fds, col_names)
+
+    print("UNBIASED FDS:")
+    print_func_deps(unbiased_fds, col_names)
 
 
 if __name__ == '__main__':
