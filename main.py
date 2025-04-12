@@ -74,7 +74,7 @@ def main(csv_filename, cache_filename, min_partition_size, max_lhs_size, error_t
 
 if __name__ == '__main__':
     MIN_PARTITION_SIZE = 1
-    MAX_LHS_SIZE = 3
+    MAX_LHS_SIZE = 4
     ERROR_THRESHOLD = 0.01
     data_filename = "adult-rand-1000"
     CSV_FILENAME = f"./data/{data_filename}.csv"
