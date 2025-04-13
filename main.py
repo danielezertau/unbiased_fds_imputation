@@ -34,6 +34,9 @@ def find_unbiased_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_
         biased_fds = {}
         unbiased_fds = {}
 
+        print("ALL FDs")
+        print_func_deps(func_deps, col_names)
+
         for lhs, rhs_group in tqdm(func_deps.items()):
             for rhs in rhs_group:
                 if is_fd_biased(lhs=", ".join(indices_to_attr_name(col_names, lhs)),
