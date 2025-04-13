@@ -25,7 +25,9 @@ def find_unbiased_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_
     col_names = get_col_names(csv_filename)
 
     if os.path.exists(cache_filename):
-        unbiased_fds = read_from_cache(cache_filename)
+        all_fds = read_from_cache(cache_filename)
+        biased_fds = all_fds["biased"]
+        unbiased_fds = all_fds["unbiased"]
     else:
         func_deps = get_tane_rules(csv_filename, min_num_partitions, max_lhs_size, error_threshold)
         load_env_file()
@@ -44,9 +46,9 @@ def find_unbiased_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_
 
     print("UNBIASED FDS:")
     print_func_deps(unbiased_fds, col_names)
-    write_to_cache(cache_filename, unbiased_fds)
+    write_to_cache(cache_filename, {"biased": biased_fds, "unbiased": unbiased_fds})
 
-    return unbiased_fds
+    return biased_fds, unbiased_fds
 
 
 if __name__ == '__main__':
@@ -61,6 +63,7 @@ if __name__ == '__main__':
     CACHE_FILENAME = f"{DATA_DIR}/cache/{OUTPUT_SUFFIX}.pkl"
     OUTPUT_FILENAME = f"{OUTPUT_DIR}/{OUTPUT_SUFFIX}.csv"
     
-    unbiased_fds = find_unbiased_fds(CSV_FILENAME, CACHE_FILENAME, MIN_NUM_PARTITIONS, MAX_LHS_SIZE, ERROR_THRESHOLD)
+    biased_fds, unbiased_fds = find_unbiased_fds(CSV_FILENAME, CACHE_FILENAME, MIN_NUM_PARTITIONS, MAX_LHS_SIZE,
+                                                 ERROR_THRESHOLD)
     full_df = pd.read_csv(CSV_FILENAME)
     impute_by_func_deps(full_df, unbiased_fds, OUTPUT_FILENAME)
