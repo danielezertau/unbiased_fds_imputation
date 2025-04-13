@@ -61,7 +61,7 @@ def main(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_t
         print("Using biased FDs")
         imputed_df = impute_by_func_deps(imputed_df, biased_fds, balance_probs=True)
 
-    full_df.to_csv(output_filename, index=False)
+    imputed_df.to_csv(output_filename, index=False)
 
 if __name__ == '__main__':
     MIN_NUM_PARTITIONS = 2
