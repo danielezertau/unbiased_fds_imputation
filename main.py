@@ -51,7 +51,7 @@ def find_unbiased_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_
 
     return biased_fds, unbiased_fds
 
-def main(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold, output_filename):
+def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold, output_filename):
     biased_fds, unbiased_fds = find_unbiased_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size,
                                                  error_threshold)
     full_df = pd.read_csv(csv_filename)
@@ -62,17 +62,3 @@ def main(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_t
         imputed_df = impute_by_func_deps(imputed_df, biased_fds, balance_probs=True)
 
     imputed_df.to_csv(output_filename, index=False)
-
-if __name__ == '__main__':
-    MIN_NUM_PARTITIONS = 2
-    MAX_LHS_SIZE = 3
-    ERROR_THRESHOLD = 0.6
-    DATA_DIR = "./data"
-    OUTPUT_DIR = f"./{DATA_DIR}/out"
-    data_filename = "adult-rand-1000"
-    CSV_FILENAME = f"{DATA_DIR}/{data_filename}.csv"
-    OUTPUT_SUFFIX = f"{data_filename}-{MAX_LHS_SIZE}-{MIN_NUM_PARTITIONS}-{ERROR_THRESHOLD}"
-    CACHE_FILENAME = f"{DATA_DIR}/cache/{OUTPUT_SUFFIX}.pkl"
-    OUTPUT_FILENAME = f"{OUTPUT_DIR}/{OUTPUT_SUFFIX}.csv"
-    
-    main(CSV_FILENAME, CACHE_FILENAME, MIN_NUM_PARTITIONS, MAX_LHS_SIZE, ERROR_THRESHOLD, OUTPUT_FILENAME)
