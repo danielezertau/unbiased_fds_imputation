@@ -29,8 +29,7 @@ def get_possible_completions(func_deps, fd_rhs, row, no_null_df):
     return fd_rhs_values, imputation_prob
 
 
-def impute_by_func_deps(csv_filename, func_deps):
-    full_df = pd.read_csv(csv_filename)
+def impute_by_func_deps(full_df, func_deps, output_filename):
     rows_to_append = []
     rows_with_nulls = full_df[full_df.isnull().any(axis=1)]
     no_null_table = full_df[full_df.notnull().all(axis=1)]
@@ -53,5 +52,5 @@ def impute_by_func_deps(csv_filename, func_deps):
     if len(rows_to_append) > 0:
         full_df = pd.concat([full_df, pd.DataFrame(rows_to_append)], ignore_index=True)
 
-    full_df.to_csv('result.csv', index=False)
+    full_df.to_csv(output_filename, index=False)
 
