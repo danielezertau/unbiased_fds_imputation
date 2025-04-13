@@ -41,8 +41,9 @@ def find_unbiased_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_
                     biased_fds[lhs] = (rhs, )
                 else:
                     unbiased_fds[lhs] = (rhs, )
-        print("BIASED FDS:")
-        print_func_deps(biased_fds, col_names)
+
+    print("BIASED FDS:")
+    print_func_deps(biased_fds, col_names)
 
     print("UNBIASED FDS:")
     print_func_deps(unbiased_fds, col_names)
