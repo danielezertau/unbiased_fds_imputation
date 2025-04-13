@@ -14,4 +14,4 @@ if __name__ == '__main__':
     subset = df.sample(n=min(subset_size, len(df)), random_state=42)
 
     # Write the subset to a new CSV file, including the header
-    subset.to_csv(output_file, index=False)
+    subset.to_csv(output_file, index=False, na_rep="NULL")
