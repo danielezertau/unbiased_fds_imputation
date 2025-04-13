@@ -61,4 +61,4 @@ def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lh
         print("Using biased FDs")
         imputed_df = impute_by_func_deps(imputed_df, biased_fds, balance_probs=True)
 
-    imputed_df.to_csv(output_filename, index=False)
+    imputed_df.to_csv(output_filename, index=False, na_rep="NULL")
