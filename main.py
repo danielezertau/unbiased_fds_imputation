@@ -58,6 +58,7 @@ def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lh
     biased_fds, unbiased_fds = find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size,
                                         error_threshold)
     full_df = pd.read_csv(csv_filename)
+    full_df["Imputed"] = "No"
     imputed_df = impute_by_func_deps(full_df, unbiased_fds)
 
     if imputed_df.isnull().values.any():

@@ -54,7 +54,8 @@ def impute_by_func_deps(full_df, func_deps, balance_probs=False):
             values, probs = imputations
             rand_value = np.random.choice(values, p=probs)
             imputed_row[col] = rand_value
-            rows_to_append.append(imputed_row)
+    
+        rows_to_append.append(imputed_row)
 
         if imputed:
             full_df.drop(i, inplace=True)
