@@ -22,6 +22,6 @@ def read_from_cache(cache_filename):
     with open(cache_filename, "rb") as f:
         return pickle.load(f)
 
-def flatten_prob_dist(probs, power):
+def balance_prob_dist(probs, power=0.5):
     flattened = probs ** power
     return flattened / flattened.sum()
