@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
 
-def get_possible_completions(func_deps, fd_rhs, row, no_null_df):
+def get_possible_completions(func_deps, fd_rhs, row, no_null_df, balance_probs):
     column_names = no_null_df.columns
     fd_rhs_col_name = column_names[list(fd_rhs)].values
     if fd_rhs not in func_deps.values():
-        return None
+        return tuple()
     matching_lhs = []
     for lhs, rhs in func_deps.items():
         if set(fd_rhs).issubset(set(rhs)):
