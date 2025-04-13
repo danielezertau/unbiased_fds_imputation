@@ -32,7 +32,7 @@ def get_chain():
     return prompt | llm
 
 def is_fd_biased(lhs, rhs, retries=2):
-    # If the LLM can't answer, consider it as non biased
+    # If the LLM can't answer, consider it as unbiased
     if retries == 0:
         return False
     chain = get_chain()
@@ -41,7 +41,7 @@ def is_fd_biased(lhs, rhs, retries=2):
         "rhs": rhs
     })
 
-    if llm_output.additional_kwargs["refusal"] is True:
+    if llm_output.additional_kwargs["refusal"]:
         return is_fd_biased(lhs, rhs, retries - 1)
 
     if "NOT-BIASED" in llm_output.content:
