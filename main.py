@@ -1,10 +1,9 @@
-import os
 import time
 from src.tane import *
 from src.llm import *
 from src.utils import *
 from tqdm.auto import tqdm
-
+from src.imputation import *
 
 def get_tane_rules(csv_filename, min_num_partitions, max_lhs_size, error_threshold=0.0, ignore_nulls=True):
     t, table_size = read_db(csv_filename, ignore_nulls)
@@ -54,7 +53,14 @@ if __name__ == '__main__':
     MIN_NUM_PARTITIONS = 2
     MAX_LHS_SIZE = 3
     ERROR_THRESHOLD = 0.1
+    DATA_DIR = "./data"
+    OUTPUT_DIR = f"./{DATA_DIR}/out"
     data_filename = "adult-rand-100"
-    CSV_FILENAME = f"./data/{data_filename}.csv"
-    CACHE_FILENAME = f"./data/cache/{data_filename}-{MAX_LHS_SIZE}-{MIN_NUM_PARTITIONS}-{ERROR_THRESHOLD}.pkl"
-    find_unbiased_fds(CSV_FILENAME, CACHE_FILENAME, MIN_NUM_PARTITIONS, MAX_LHS_SIZE, ERROR_THRESHOLD)
+    CSV_FILENAME = f"{DATA_DIR}/{data_filename}.csv"
+    OUTPUT_SUFFIX = f"{data_filename}-{MAX_LHS_SIZE}-{MIN_NUM_PARTITIONS}-{ERROR_THRESHOLD}"
+    CACHE_FILENAME = f"{DATA_DIR}/cache/{OUTPUT_SUFFIX}.pkl"
+    OUTPUT_FILENAME = f"{OUTPUT_DIR}/{OUTPUT_SUFFIX}.csv"
+    
+    unbiased_fds = find_unbiased_fds(CSV_FILENAME, CACHE_FILENAME, MIN_NUM_PARTITIONS, MAX_LHS_SIZE, ERROR_THRESHOLD)
+    full_df = pd.read_csv(CSV_FILENAME)
+    impute_by_func_deps(full_df, unbiased_fds, OUTPUT_FILENAME)
