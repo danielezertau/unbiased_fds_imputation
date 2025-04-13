@@ -21,7 +21,7 @@ def get_tane_rules(csv_filename, min_num_partitions, max_lhs_size, error_thresho
     print ('\t=> {} Rules Found'.format(sum(len(v) for v in func_deps.values())))
     return func_deps
 
-def find_unbiased_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold):
+def find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold):
     col_names = get_col_names(csv_filename)
 
     if os.path.exists(cache_filename):
@@ -55,8 +55,8 @@ def find_unbiased_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_
     return biased_fds, unbiased_fds
 
 def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold, output_filename):
-    biased_fds, unbiased_fds = find_unbiased_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size,
-                                                 error_threshold)
+    biased_fds, unbiased_fds = find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size,
+                                        error_threshold)
     full_df = pd.read_csv(csv_filename)
     imputed_df = impute_by_func_deps(full_df, unbiased_fds)
 
