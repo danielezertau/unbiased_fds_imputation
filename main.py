@@ -67,4 +67,10 @@ if __name__ == '__main__':
     biased_fds, unbiased_fds = find_unbiased_fds(CSV_FILENAME, CACHE_FILENAME, MIN_NUM_PARTITIONS, MAX_LHS_SIZE,
                                                  ERROR_THRESHOLD)
     full_df = pd.read_csv(CSV_FILENAME)
-    impute_by_func_deps(full_df, unbiased_fds, OUTPUT_FILENAME)
+    imputed_df = impute_by_func_deps(full_df, unbiased_fds)
+    
+    if imputed_df.isnull().values.any():
+        print("Using biased FDs")
+        imputed_df = impute_by_func_deps(imputed_df, biased_fds, balance_probs=True)
+
+    full_df.to_csv(OUTPUT_FILENAME, index=False)
