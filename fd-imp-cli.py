@@ -5,7 +5,7 @@ from main import find_fds_and_impute
 def parse_args():
     parser = argparse.ArgumentParser(description="Find functional dependencies.")
 
-    parser.add_argument("--min_num_partitions", type=int, default=2, help="Minimum number of partitions"
+    parser.add_argument("--min_num_partitions", type=int, default=3, help="Minimum number of partitions"
                                                                           " allowed for a functional dependency")
     parser.add_argument("--max_lhs_size", type=int, default=3, help="Maximum LHS size of a "
                                                                     "functional dependency")
