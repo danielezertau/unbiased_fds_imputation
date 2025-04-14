@@ -26,7 +26,7 @@ OPENAI_API_KEY=<YOUR_API_KEY>
 The fd-imp-cli can be used in order to run the project.
 
 ### Arguments
-- `--min_num_partitions`: The minimal number of partitions allowed for a functional dependency to be considered for imputation. Default is `3`.
+- `--min_num_partitions`: The minimal number of partitions allowed for a functional dependency to be considered for imputation. Default is `2`.
 - `--max_lhs_size`: The maximal number of attributes in the LHS of a functional dependency. Default is `3`. 
 - `--error_threshold`: The allowed error rate for a functional dependency. Default is `0.06`.
 - `--data_dir`: The directory in which we can find the input data in csv format. Default is `./data`.
