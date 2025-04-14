@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from src.utils import balance_prob_dist
 
-def get_possible_completions(func_deps, fd_rhs, row, no_null_df, balance_probs):
+def get_possible_completions(func_deps, fd_rhs, row, no_null_df, balancing_power):
     column_names = no_null_df.columns
     fd_rhs_col_name = column_names[list(fd_rhs)].values
     if fd_rhs not in func_deps.values():
@@ -28,12 +28,11 @@ def get_possible_completions(func_deps, fd_rhs, row, no_null_df, balance_probs):
         imputation_prob[np.isin(fd_rhs_values, values)] += probs / i
         i += 1
 
-    if balance_probs:
-        imputation_prob = balance_prob_dist(imputation_prob)
+    imputation_prob = balance_prob_dist(imputation_prob, balancing_power)
     return fd_rhs_values, imputation_prob
 
 
-def impute_by_func_deps(full_df, func_deps, balance_probs=False):
+def impute_by_func_deps(full_df, func_deps, balancing_power):
     rows_to_append = []
     rows_with_nulls = full_df[full_df.isnull().any(axis=1)]
     no_null_table = full_df[full_df.notnull().all(axis=1)]
@@ -44,7 +43,7 @@ def impute_by_func_deps(full_df, func_deps, balance_probs=False):
         completions = {}
         for col in row_null_cols:
             col_index_tup = (full_df.columns.get_loc(col), )
-            col_completions = get_possible_completions(func_deps, col_index_tup, row, no_null_table, balance_probs)
+            col_completions = get_possible_completions(func_deps, col_index_tup, row, no_null_table, balancing_power)
             if col_completions:
                 completions[col] = col_completions
 

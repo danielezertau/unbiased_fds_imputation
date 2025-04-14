@@ -47,3 +47,18 @@ Imputing data with a large error threshold of `0.5`:
 ```shell
 python fd-imp-cli.py --error_threshold 0.5
 ```
+
+Imputing data without biased FDs, with an error threshold of 0.01:
+```shell
+python fd-imp-cli.py --error_threshold 0.01 --use_biased_fds False
+```
+
+Imputing data while aggressively balancing biased FDs:
+```shell
+python fd-imp-cli.py --balancing_power 0.1
+```
+
+Imputing data slightly balancing biased FDs, ignoring most of the bias:
+```shell
+python fd-imp-cli.py --balancing_power 0.9
+```

@@ -11,6 +11,14 @@ def parse_args():
                                                                     "functional dependency")
     parser.add_argument("--error_threshold", type=float, default=0.06, help="Approximate functional "
                                                                            "dependency error threshold")
+
+    parser.add_argument("--use_biased_fds", type=bool, default=True, help="Whether to use "
+                                                                         "biased FDs for imputation")
+
+    parser.add_argument("--balancing_power", type=float, default=0.5, help="The power to use for balancing"
+                                                                           " biased FDs probability distributions."
+                                                                           " Lower value means more balancing.")
+
     parser.add_argument("--data_dir", type=str, default="./data", help="Data directory containing "
                                                                        "input data")
     parser.add_argument("--data_filename", type=str, default="adult-rand-1000", help="Input CSV file name")
@@ -30,7 +38,7 @@ def cli_main():
     output_filename = f"{output_dir}/{output_suffix}.csv"
 
     find_fds_and_impute(csv_filename, cache_filename, args.min_num_partitions, args.max_lhs_size, args.error_threshold,
-                        output_filename)
+                        output_filename, args.use_biased_fds, args.balancing_power)
 
 if __name__ == "__main__":
     cli_main()

@@ -1,4 +1,5 @@
 import time
+import os
 from src.tane import *
 from src.llm import *
 from src.utils import *
@@ -54,15 +55,17 @@ def find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size, err
 
     return biased_fds, unbiased_fds
 
-def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold, output_filename):
+def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold,
+                        output_filename, use_biased_fds, balancing_power):
     biased_fds, unbiased_fds = find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size,
                                         error_threshold)
     full_df = pd.read_csv(csv_filename)
     full_df["Imputed"] = "No"
-    imputed_df = impute_by_func_deps(full_df, unbiased_fds)
+    # Don't balance the distribution in unbiased FDs
+    imputed_df = impute_by_func_deps(full_df, unbiased_fds, balancing_power=1)
 
-    if imputed_df.isnull().values.any():
+    if imputed_df.isnull().values.any() and use_biased_fds:
         print("Using biased FDs")
-        imputed_df = impute_by_func_deps(imputed_df, biased_fds, balance_probs=True)
+        imputed_df = impute_by_func_deps(imputed_df, biased_fds, balancing_power)
 
     imputed_df.to_csv(output_filename, index=False, na_rep="NULL")
