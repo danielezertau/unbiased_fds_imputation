@@ -1,6 +1,5 @@
 import pickle
 import pandas as pd
-import os
 
 def indices_to_attr_name(column_names, idxs):
     return column_names[list(idxs)].values
