@@ -37,7 +37,7 @@ Since mining for functional dependencies and querying an LLM on their bias is ti
 
 After running the imputation process, the imputed data will be written to the `${data_dir}/out` directory.
 
-## Examples
+### Examples
 Imputing data, considering FDs with maximal LHS size of `4` and minimal number of partitions of `5`:
 ```shell
 python fd-imp-cli.py --max_lhs_size 4 --min_num_partitions 5
