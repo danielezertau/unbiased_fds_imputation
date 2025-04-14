@@ -5,19 +5,21 @@ from main import find_fds_and_impute
 def parse_args():
     parser = argparse.ArgumentParser(description="Find functional dependencies.")
 
-    parser.add_argument("--min_num_partitions", type=int, default=2, help="Minimum number of partitions"
-                                                                          " allowed for a functional dependency")
-    parser.add_argument("--max_lhs_size", type=int, default=3, help="Maximum LHS size of a "
-                                                                    "functional dependency")
-    parser.add_argument("--error_threshold", type=float, default=0.06, help="Approximate functional "
-                                                                           "dependency error threshold")
+    parser.add_argument("--min_num_partitions", type=int, default=2,
+                        help="Minimum number of partitions allowed for a functional dependency")
 
-    parser.add_argument("--use_biased_fds", type=bool, default=True, help="Whether to use "
-                                                                         "biased FDs for imputation")
+    parser.add_argument("--max_lhs_size", type=int, default=3,
+                        help="Maximum LHS size of a functional dependency")
 
-    parser.add_argument("--balancing_power", type=float, default=0.5, help="The power to use for balancing"
-                                                                           " biased FDs probability distributions."
-                                                                           " Lower value means more balancing.")
+    parser.add_argument("--error_threshold", type=float, default=0.06,
+                        help="Approximate functional dependency error threshold")
+
+    parser.add_argument("--use_biased_fds", type=bool, default=True,
+                        help="Whether to use biased FDs for imputation")
+
+    parser.add_argument("--balancing_power", type=float, default=0.5,
+                        help="The power to use for balancing biased FDs probability distributions. "
+                             "Lower value means more balancing.")
 
     parser.add_argument("--use_simple_imputer", type=bool, default=True,
                         help="Whether to use scikit-learn's SimpleImputer If we still have NULLs after "
