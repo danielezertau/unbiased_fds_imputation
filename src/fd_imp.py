@@ -1,4 +1,3 @@
-import time
 import os
 from sklearn.impute import SimpleImputer
 from src.tane import *
@@ -6,22 +5,6 @@ from src.llm import *
 from src.utils import *
 from tqdm.auto import tqdm
 from src.imputation import *
-
-def get_tane_rules(csv_filename, min_num_partitions, max_lhs_size, error_threshold=0.0, ignore_nulls=True):
-    t, table_size = read_db(csv_filename, ignore_nulls)
-    tane = TANE(t, table_size=table_size, error_threshold=error_threshold, min_diff_values=min_num_partitions,
-                max_lhs_size=max_lhs_size)
-    t0 = time.time()
-    tane.run()
-    print ("\t=> Execution Time: {} seconds".format(time.time()-t0))
-    func_deps = {}
-    for lhs, rhs in tane.rules:
-        if not func_deps.get(lhs):
-            func_deps[lhs] = set()
-        func_deps[lhs].add(rhs)
-
-    print ('\t=> {} Rules Found'.format(sum(len(v) for v in func_deps.values())))
-    return func_deps
 
 def find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold):
     col_names = get_col_names(csv_filename)

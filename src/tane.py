@@ -20,31 +20,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from fca.defs.patterns.hypergraphs import TrimmedPartitionPattern
 from itertools import combinations
-import csv
 from tqdm.auto import tqdm
+import time
+from src.utils import read_db
 
 # Get reduce for Python 3+
 from functools import reduce
 
-##########################################################################################
-## UTILS
-##########################################################################################
-def read_db(path, ignore_nulls):
-    hashes = {}
-    num_lines = 0
-    with open(path, 'r') as fin:
-        reader = csv.DictReader(fin)
-        for t, line in enumerate(reader):
-            # Ignore lines with null values
-            if "NULL" in line.values() and ignore_nulls:
-                continue
-            num_lines += 1
-            for i, s in enumerate(line.values()):
-                hashes.setdefault(i, {}).setdefault(s, set([])).add(t)# [(i, s)] = len(hashes)
-        return [(list(hashes[k].values())) for k in sorted(hashes.keys())], num_lines
-
-def tostr(atts):
-    return ''.join([chr(65+i) for i in atts])
 
 ##########################################################################################
 ## CLASSES
@@ -328,3 +310,20 @@ class TANE(object):
             # MEMORY WIPE
             L[l-1] = None
             self.memory_wipe()
+
+
+def get_tane_rules(csv_filename, min_num_partitions, max_lhs_size, error_threshold, ignore_nulls=True):
+    t, table_size = read_db(csv_filename, ignore_nulls)
+    tane = TANE(t, table_size=table_size, error_threshold=error_threshold, min_diff_values=min_num_partitions,
+                max_lhs_size=max_lhs_size)
+    t0 = time.time()
+    tane.run()
+    print ("\t=> Execution Time: {} seconds".format(time.time()-t0))
+    func_deps = {}
+    for lhs, rhs in tane.rules:
+        if not func_deps.get(lhs):
+            func_deps[lhs] = set()
+        func_deps[lhs].add(rhs)
+
+    print ('\t=> {} Rules Found'.format(sum(len(v) for v in func_deps.values())))
+    return func_deps

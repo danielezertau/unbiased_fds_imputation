@@ -1,6 +1,6 @@
 import argparse
 import os
-from main import find_fds_and_impute
+from src.fd_imp import find_fds_and_impute
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Find functional dependencies.")

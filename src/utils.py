@@ -1,3 +1,4 @@
+import csv
 import pickle
 import pandas as pd
 
@@ -24,3 +25,17 @@ def read_from_cache(cache_filename):
 def balance_prob_dist(probs, power):
     flattened = probs ** power
     return flattened / flattened.sum()
+
+def read_db(path, ignore_nulls):
+    hashes = {}
+    num_lines = 0
+    with open(path, 'r') as fin:
+        reader = csv.DictReader(fin)
+        for t, line in enumerate(reader):
+            # Ignore lines with null values
+            if "NULL" in line.values() and ignore_nulls:
+                continue
+            num_lines += 1
+            for i, s in enumerate(line.values()):
+                hashes.setdefault(i, {}).setdefault(s, set([])).add(t)# [(i, s)] = len(hashes)
+        return [(list(hashes[k].values())) for k in sorted(hashes.keys())], num_lines
