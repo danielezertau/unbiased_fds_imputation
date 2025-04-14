@@ -56,7 +56,7 @@ def impute_by_func_deps(full_df, func_deps, balancing_power):
     
         rows_to_append.append(imputed_row)
 
-        imputed_row["Imputed"] = list(completions.keys())
+        imputed_row["Imputed"] = ", ".join(list(completions.keys()))
         if imputed:
             full_df.drop(i, inplace=True)
 

@@ -53,6 +53,11 @@ Imputing data without biased FDs, with an error threshold of 0.01:
 python fd-imp-cli.py --error_threshold 0.01 --use_biased_fds False
 ```
 
+Imputing data without biased FDs, using SimpleImputer with mean strategy as a final resort:
+```shell
+python fd-imp-cli.py --use_biased_fds False --use_simple_imputer True --simple_imputer_strategy mean
+```
+
 Imputing data while aggressively balancing biased FDs:
 ```shell
 python fd-imp-cli.py --balancing_power 0.1

@@ -19,6 +19,13 @@ def parse_args():
                                                                            " biased FDs probability distributions."
                                                                            " Lower value means more balancing.")
 
+    parser.add_argument("--use_simple_imputer", type=bool, default=True,
+                        help="Whether to use scikit-learn's SimpleImputer If we still have NULLs after "
+                             "the FD imputation.")
+
+    parser.add_argument("--simple_imputer_strategy", type=str, default="most_frequent",
+                        help="Simple imputation Strategy, if needed.")
+
     parser.add_argument("--data_dir", type=str, default="./data", help="Data directory containing "
                                                                        "input data")
     parser.add_argument("--data_filename", type=str, default="adult-rand-1000", help="Input CSV file name")
@@ -38,7 +45,8 @@ def cli_main():
     output_filename = f"{output_dir}/{output_suffix}.csv"
 
     find_fds_and_impute(csv_filename, cache_filename, args.min_num_partitions, args.max_lhs_size, args.error_threshold,
-                        output_filename, args.use_biased_fds, args.balancing_power)
+                        output_filename, args.use_biased_fds, args.balancing_power, args.use_simple_imputer,
+                        args.simple_imputer_strategy)
 
 if __name__ == "__main__":
     cli_main()

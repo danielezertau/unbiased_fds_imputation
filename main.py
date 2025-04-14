@@ -1,5 +1,6 @@
 import time
 import os
+from sklearn.impute import SimpleImputer
 from src.tane import *
 from src.llm import *
 from src.utils import *
@@ -56,7 +57,7 @@ def find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size, err
     return biased_fds, unbiased_fds
 
 def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold,
-                        output_filename, use_biased_fds, balancing_power):
+                        output_filename, use_biased_fds, balancing_power, use_simple_imputer, simp_imp_strategy):
     biased_fds, unbiased_fds = find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size,
                                         error_threshold)
     full_df = pd.read_csv(csv_filename)
@@ -64,8 +65,15 @@ def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lh
     # Don't balance the distribution in unbiased FDs
     imputed_df = impute_by_func_deps(full_df, unbiased_fds, balancing_power=1)
 
-    if imputed_df.isnull().values.any() and use_biased_fds:
-        print("Using biased FDs")
+    # If we still have missing values, use biased FDs
+    if use_biased_fds and imputed_df.isnull().values.any():
+        print("Imputing with biased FDs")
         imputed_df = impute_by_func_deps(imputed_df, biased_fds, balancing_power)
+
+    # If we still have missing values, use the most common value
+    if use_simple_imputer and imputed_df.isnull().values.any():
+        print(f"Imputing with SimpleImputer strategy {simp_imp_strategy}")
+        imp = SimpleImputer(strategy=simp_imp_strategy)
+        imputed_df[:] = imp.fit_transform(imputed_df)
 
     imputed_df.to_csv(output_filename, index=False, na_rep="NULL")
