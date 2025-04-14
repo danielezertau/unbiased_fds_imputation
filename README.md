@@ -48,6 +48,11 @@ Imputing data with a large error threshold of `0.5`:
 python fd-imp-cli.py --error_threshold 0.5
 ```
 
+Imputing data with only exact FDs:
+```shell
+python fd-imp-cli.py --error_threshold 0
+```
+
 Imputing data without biased FDs, with an error threshold of 0.01:
 ```shell
 python fd-imp-cli.py --error_threshold 0.01 --use_biased_fds False
