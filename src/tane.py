@@ -303,7 +303,9 @@ class TANE(object):
         L = [None, L1]
         l = 1
         while bool(L[l]):
+            print(f"Computing dependencies for level {l}")
             self.compute_dependencies(L[l])
+            print(f"Pruning level {l}")
             self.prune(L[l])
             L.append(self.generate_next_level(L[l]))
             l = l+1
