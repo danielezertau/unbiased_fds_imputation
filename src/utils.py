@@ -39,3 +39,6 @@ def read_db(path, ignore_nulls):
             for i, s in enumerate(line.values()):
                 hashes.setdefault(i, {}).setdefault(s, set([])).add(t)# [(i, s)] = len(hashes)
         return [(list(hashes[k].values())) for k in sorted(hashes.keys())], num_lines
+
+def count_nulls(df):
+    return df.isnull().values.sum()
