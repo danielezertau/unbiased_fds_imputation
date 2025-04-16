@@ -50,7 +50,6 @@ def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lh
                                         error_threshold)
     full_df = pd.read_csv(csv_filename)
     prev_num_null_cells = count_nulls(full_df)
-    full_df["Imputed"] = "No"
     # Don't balance the distribution in unbiased FDs
     print(f"Total number of NULL cells: {prev_num_null_cells}")
     print("Imputing with unbiased FDs")

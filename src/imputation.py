@@ -58,11 +58,6 @@ def impute_by_func_deps(full_df, func_deps, balancing_power):
             imputed_row[col] = rand_value
     
         if imputed:
-            rows_to_append.append(imputed_row)    
-            imputed_row["Imputed"] = ", ".join(list(completions.keys()))
-            full_df.drop(i, inplace=True)
-
-    if len(rows_to_append) > 0:
-        full_df = pd.concat([full_df, pd.DataFrame(rows_to_append)], ignore_index=True)
+            full_df.loc[i] = imputed_row
 
     return full_df
