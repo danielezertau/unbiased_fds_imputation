@@ -2,7 +2,7 @@ import argparse
 import os
 from src.fd_imp import find_fds_and_impute
 
-def parse_args():
+def parse_args(args):
     parser = argparse.ArgumentParser(description="Find functional dependencies.")
 
     parser.add_argument("--min_num_partitions", type=int, default=2,
@@ -32,11 +32,11 @@ def parse_args():
                                                                        "input data")
     parser.add_argument("--data_filename", type=str, default="adult-rand-1000", help="Input CSV file name")
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
-def cli_main():
-    args = parse_args()
+def cli_main(args=None):
+    args = parse_args(args=args)
 
     output_dir = f"{args.data_dir}/out"
     os.makedirs(output_dir, exist_ok=True)
