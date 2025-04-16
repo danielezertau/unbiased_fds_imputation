@@ -28,8 +28,11 @@ def get_possible_completions(func_deps, fd_rhs, row, no_null_df, balancing_power
         imputation_prob[np.isin(fd_rhs_values, values)] += probs / i
         i += 1
 
-    imputation_prob = balance_prob_dist(imputation_prob, balancing_power)
-    return fd_rhs_values, imputation_prob
+    # Fix for when we don't find viable completions
+    if imputation_prob.sum() == 0:
+        return tuple()
+    
+    return fd_rhs_values, balance_prob_dist(imputation_prob, balancing_power)
 
 
 def impute_by_func_deps(full_df, func_deps, balancing_power):
