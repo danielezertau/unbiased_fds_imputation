@@ -30,6 +30,10 @@ def parse_args(args):
 
     parser.add_argument("--data_dir", type=str, default="./data", help="Data directory containing "
                                                                        "input data")
+    parser.add_argument("--cache_dir", type=str, default="./cache", help="Cache directory")
+
+    parser.add_argument("--output_dir", type=str, default="./out", help="Output directory")
+
     parser.add_argument("--data_filename", type=str, default="adult-rand-1000", help="Input CSV file name")
 
     return parser.parse_args(args)
@@ -38,17 +42,19 @@ def parse_args(args):
 def cli_main(args=None):
     args = parse_args(args=args)
 
-    output_dir = f"{args.data_dir}/out"
-    os.makedirs(output_dir, exist_ok=True)
+    print(f"Running imputation with config: {args}")
+
+    os.makedirs(args.output_dir, exist_ok=True)
+    os.makedirs(args.cache_dir, exist_ok=True)
 
     csv_filename = f"{args.data_dir}/{args.data_filename}.csv"
     output_suffix = f"{args.data_filename}-{args.max_lhs_size}-{args.min_num_partitions}-{args.error_threshold}"
-    cache_filename = f"{args.data_dir}/cache/{output_suffix}.pkl"
-    output_filename = f"{output_dir}/{output_suffix}.csv"
+    cache_filename = f"{args.cache_dir}/{output_suffix}.pkl"
+    output_filename = f"{args.output_dir}/{output_suffix}.csv"
 
-    find_fds_and_impute(csv_filename, cache_filename, args.min_num_partitions, args.max_lhs_size, args.error_threshold,
-                        output_filename, args.use_biased_fds, args.balancing_power, args.use_simple_imputer,
-                        args.simple_imputer_strategy)
+    return output_filename, find_fds_and_impute(csv_filename, cache_filename, args.min_num_partitions, args.max_lhs_size,
+                                                args.error_threshold, output_filename, args.use_biased_fds, args.balancing_power,
+                                                args.use_simple_imputer, args.simple_imputer_strategy)
 
 if __name__ == "__main__":
     cli_main()
