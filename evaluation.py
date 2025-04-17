@@ -3,6 +3,19 @@ import numpy as np
 import pandas as pd
 from fd_imp_cli import cli_main
 
+def set_rand_nulls(no_null_df, num_null_cells):
+    n_rows, n_cols = no_null_df.shape
+    # Create binary mask
+    flat_indices = np.random.choice(n_rows * n_cols, size=num_null_cells, replace=False)
+    row_indices, col_indices = np.unravel_index(flat_indices, (n_rows, n_cols))
+    mask = np.zeros((n_rows, n_cols), dtype=bool)
+    mask[row_indices, col_indices] = True
+
+    # Set NAN by the mask
+    print(f"Setting NULL values in {mask.sum()} cells")
+    new_df = no_null_df.mask(mask, np.nan)
+    return new_df
+
 
 def rand_null_data(input_file_dir, input_filename, args, num_null_cells, num_experiments):
     # Params and setup
@@ -13,22 +26,16 @@ def rand_null_data(input_file_dir, input_filename, args, num_null_cells, num_exp
 
     # Filter out null values
     no_null_df = df[df.notnull().all(axis=1)]
-    n_rows, n_cols = no_null_df.shape
 
     sum_imp_ub, sum_imp_b, sum_imp_s = 0, 0, 0
     correct_imp = 0
     for i in range(num_experiments):
         print(f"\n\nRunning experiment number {i+1}")
         # Create binary mask
-        flat_indices = np.random.choice(n_rows * n_cols, size=num_null_cells, replace=False)
-        row_indices, col_indices = np.unravel_index(flat_indices, (n_rows, n_cols))
-        mask = np.zeros((n_rows, n_cols), dtype=bool)
-        mask[row_indices, col_indices] = True
-    
-        # Set NAN by the mask
-        print(f"Setting NULL values in {mask.sum()} cells")
-        new_df = no_null_df.mask(mask, np.nan)
-    
+
+        # Set NULLs in random cells
+        new_df = set_rand_nulls(no_null_df, num_null_cells)
+
         # Write eval df to file
         new_df.to_csv(f"{eval_dir}/{input_filename}.csv", index=False, na_rep="NULL")
         args += ["--data_filename", input_filename]
