@@ -49,18 +49,25 @@ def rand_null_data(input_file_dir, input_filename, args, num_null_cells, num_exp
     print(f"Average fraction of imputed tuples with SimpleImputer: {sum_imp_s / num_experiments}")
     print(f"Average fraction of correctly imputed cells: {correct_imp / num_experiments}")
 
-if __name__ == '__main__':
-    args_dict = [
-        '--data_dir', "./eval/",
-        '--cache_dir', "./eval/cache",
-        '--output_dir', "./eval/out",
-        '--min_num_partitions', '2',
-        '--max_lhs_size', '3',
-        '--error_threshold', '0.05',
-        '--use_biased_fds', 'True',
-        '--balancing_power', '0.5',
-        '--use_simple_imputer', 'True',
-        '--simple_imputer_strategy', 'most_frequent'
-    ]
+def rand_null_expr():
+    for (input_file, err_thresh, num_null) in [("adult-rand-500", "0.03", 25), ("adult-rand-500", "0.05", 25),
+                                               ("adult-rand-1000", "0.06", 50), ("adult-rand-1000", "0.1", 50)]:
+        args_dict = [
+            '--data_dir', "./eval/",
+            '--cache_dir', "./eval/cache",
+            '--output_dir', "./eval/out",
+            '--min_num_partitions', '2',
+            '--max_lhs_size', '3',
+            '--error_threshold', err_thresh,
+            '--use_biased_fds', 'True',
+            '--balancing_power', '0.5',
+            '--use_simple_imputer', 'True',
+            '--simple_imputer_strategy', 'most_frequent'
+        ]
+    
+        print("#" * 180)
+        print(input_file, err_thresh, num_null)
+        rand_null_data("./data", input_file, args_dict, num_null, 50)    
 
-    rand_null_data("./data", "adult-rand-500", args_dict, 50, 50)
+if __name__ == '__main__':
+    rand_null_expr()
