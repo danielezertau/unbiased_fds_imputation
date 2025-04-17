@@ -13,7 +13,7 @@ def get_possible_completions(func_deps, fd_rhs, row, no_null_df, balancing_power
     fd_rhs_col_name = column_names[list(fd_rhs)].values
     # If we don't have a suitable FD, there are no completions
     if fd_rhs not in func_deps.values():
-        return tuple()
+        return None, None
 
     matching_lhs = find_fds_for_rhs(func_deps, fd_rhs)
 
@@ -31,7 +31,7 @@ def get_possible_completions(func_deps, fd_rhs, row, no_null_df, balancing_power
 
     # Fix for when we don't find viable completions
     if imputation_prob.sum() == 0:
-        return tuple()
+        return None, None
     
     return fd_rhs_values, balance_prob_dist(imputation_prob, balancing_power)
 
@@ -52,7 +52,7 @@ def impute_row(df, no_null_df, row, row_index, func_deps, balancing_power):
     for col in row_null_cols:
         col_index_tup = (df.columns.get_loc(col),)
         values, probs = get_possible_completions(func_deps, col_index_tup, row, no_null_df, balancing_power)
-        if values:
+        if values is not None:
             rand_value = np.random.choice(values, p=probs)
             imputed_row[col] = rand_value
             imputed = True
