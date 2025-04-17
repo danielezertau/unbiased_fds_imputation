@@ -2,6 +2,13 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 
+SYSTEM_PROMPT = """
+You are a helpful assistant that detects functional dependencies in a database. Given a functional 
+dependency that holds in an existing database, Say whether it is biased against some group in society. 
+For example: sex -> capital.loss is biased, but occupation -> income and sex -> race is not. 
+Think about your answer, but eventually state BIASED or NOT-BIASED.
+"""
+
 def load_env_file(dotenv_path="config/.env"):
     load_dotenv(dotenv_path)
 
@@ -20,11 +27,7 @@ def get_chain():
     prompt = ChatPromptTemplate.from_messages(
         messages = [
             (
-                "system",
-                "You are a helpful assistant that detects functional dependencies in a database. Given a functional "
-                "dependency that holds in an existing database, Say whether it is biased against some group in society. "
-                "For example: sex -> capital.loss is biased, but occupation -> income and sex -> race is not."
-                "Think about your answer, but eventually state BIASED or NOT-BIASED.",
+                "system", SYSTEM_PROMPT,
             ),
             ("human", "{lhs} -> {rhs}"),
         ]

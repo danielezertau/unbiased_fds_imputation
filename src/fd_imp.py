@@ -6,33 +6,38 @@ from src.utils import *
 from tqdm.auto import tqdm
 from src.imputation import *
 
+def load_fds_from_cache(cache_filename):
+    print("Reading functional dependencies from cache")
+    all_fds = read_from_cache(cache_filename)
+    biased_fds = all_fds["biased"]
+    unbiased_fds = all_fds["unbiased"]
+    return biased_fds, unbiased_fds
+
+def mine_for_fds(csv_filename, col_names, min_num_partitions, max_lhs_size, error_threshold):
+    print("Mining for functional dependencies")
+    func_deps = get_tane_rules(csv_filename, min_num_partitions, max_lhs_size, error_threshold)
+    load_env_file()
+    biased_fds = {}
+    unbiased_fds = {}
+
+    print("Checking for biases in functional dependencies")
+    for lhs, rhs_group in tqdm(func_deps.items()):
+        for rhs in rhs_group:
+            if is_fd_biased(lhs=", ".join(indices_to_attr_name(col_names, lhs)),
+                            rhs=", ".join(indices_to_attr_name(col_names, (rhs, )))):
+                biased_fds[lhs] = (rhs, )
+            else:
+                unbiased_fds[lhs] = (rhs, )
+    return biased_fds, unbiased_fds
+
 def find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold):
     col_names = get_col_names(csv_filename)
 
     if os.path.exists(cache_filename):
-        print("Reading functional dependencies from cache")
-        all_fds = read_from_cache(cache_filename)
-        biased_fds = all_fds["biased"]
-        unbiased_fds = all_fds["unbiased"]
+        biased_fds, unbiased_fds = load_fds_from_cache(cache_filename)
     else:
-        print("Mining for functional dependencies")
-        func_deps = get_tane_rules(csv_filename, min_num_partitions, max_lhs_size, error_threshold)
-        load_env_file()
-        biased_fds = {}
-        unbiased_fds = {}
-
-        print("ALL FDs")
-        print_func_deps(func_deps, col_names)
-
-        print("Checking for biases in functional dependencies")
-        for lhs, rhs_group in tqdm(func_deps.items()):
-            for rhs in rhs_group:
-                if is_fd_biased(lhs=", ".join(indices_to_attr_name(col_names, lhs)),
-                                    rhs=", ".join(indices_to_attr_name(col_names, (rhs, )))):
-                    biased_fds[lhs] = (rhs, )
-                else:
-                    unbiased_fds[lhs] = (rhs, )
-
+        biased_fds, unbiased_fds = mine_for_fds(csv_filename, col_names, min_num_partitions, max_lhs_size,
+                                                error_threshold)
     print("BIASED FDS:")
     print_func_deps(biased_fds, col_names)
 
@@ -42,6 +47,25 @@ def find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size, err
 
     return biased_fds, unbiased_fds
 
+def impute_with_fds_and_report(df, fds, fd_type, balancing_power):
+    num_nulls_before = count_nulls(df)
+    print(f"Imputing with {fd_type} FDs")
+    imputed_df = impute_by_func_deps(df, fds, balancing_power)
+    num_nulls_after = count_nulls(imputed_df)
+    num_imputed = num_nulls_before - num_nulls_after
+    print(f"Imputed {num_imputed} cells of missing information using {fd_type} FDs")
+    return imputed_df, num_imputed
+
+def impute_with_simp_imp_and_report(df, strategy):
+    num_nulls_before = count_nulls(df)
+    print(f"Imputing with SimpleImputer strategy {strategy}")
+    imp = SimpleImputer(strategy=strategy)
+    df[:] = imp.fit_transform(df)
+    num_nulls_after = count_nulls(df)
+    num_imputed = num_nulls_before - num_nulls_after
+    print(f"Imputed {num_imputed} cells of missing information using SimpleImputer strategy {strategy}")
+    return df, num_imputed
+
 def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold,
                         output_filename, use_biased_fds, balancing_power, use_simple_imputer, simp_imp_strategy):
 
@@ -49,33 +73,18 @@ def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lh
     biased_fds, unbiased_fds = find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size,
                                         error_threshold)
     full_df = pd.read_csv(csv_filename)
-    prev_num_null_cells = count_nulls(full_df)
-    # Don't balance the distribution in unbiased FDs
-    print(f"Total number of NULL cells: {prev_num_null_cells}")
-    print("Imputing with unbiased FDs")
-    imputed_df = impute_by_func_deps(full_df, unbiased_fds, balancing_power=1)
-    num_imputed_unbiased = prev_num_null_cells - count_nulls(imputed_df)
-    print(f"Imputed {num_imputed_unbiased} "
-          f"cells of missing information using unbiased FDs")
+    print(f"Total number of NULL cells: {count_nulls(full_df)}")
+
+    # Impute with unbiased FDs
+    imputed_df, num_imputed_unbiased = impute_with_fds_and_report(full_df, unbiased_fds, "unbiased", 1)
 
     # If we still have missing values, use biased FDs
     if use_biased_fds and imputed_df.isnull().values.any():
-        print("Imputing with biased FDs")
-        prev_num_null_cells = count_nulls(imputed_df)
-        imputed_df = impute_by_func_deps(imputed_df, biased_fds, balancing_power)
-        num_imputed_biased = prev_num_null_cells - count_nulls(imputed_df)
-        print(f"Imputed {num_imputed_biased} "
-              f"cells of missing information using biased FDs")
+        imputed_df, num_imputed_biased = impute_with_fds_and_report(full_df, biased_fds, "biased", balancing_power)
 
     # If we still have missing values, use the most common value
     if use_simple_imputer and imputed_df.isnull().values.any():
-        prev_num_null_cells = count_nulls(imputed_df)
-        print(f"Imputing with SimpleImputer strategy {simp_imp_strategy}")
-        imp = SimpleImputer(strategy=simp_imp_strategy)
-        imputed_df[:] = imp.fit_transform(imputed_df)
-        num_imputed_simple = prev_num_null_cells - count_nulls(imputed_df)
-        print(f"Imputed {num_imputed_simple} "
-              f"cells of missing information using SimpleImputer strategy {simp_imp_strategy}")
+        imputed_df, num_imputed_simple = impute_with_simp_imp_and_report(imputed_df, simp_imp_strategy)
 
     imputed_df.to_csv(output_filename, index=False, na_rep="NULL")
     
