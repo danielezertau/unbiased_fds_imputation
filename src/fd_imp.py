@@ -1,5 +1,3 @@
-import os
-from sklearn.impute import SimpleImputer
 from src.tane import *
 from src.llm import *
 from src.utils import *
@@ -55,17 +53,6 @@ def impute_with_fds_and_report(df, fds, fd_type, balancing_power):
     num_nulls_after = count_nulls(imputed_df)
     num_imputed = num_nulls_before - num_nulls_after
     print(f"Imputed {num_imputed} cells of missing information using {fd_type} FDs")
-    return imputed_df, num_imputed
-
-def impute_with_simp_imp_and_report(df, strategy):
-    num_nulls_before = count_nulls(df)
-    print(f"Imputing with SimpleImputer strategy {strategy}")
-    imp = SimpleImputer(strategy=strategy)
-    imputed_df = df.copy()
-    imputed_df[:] = imp.fit_transform(df)
-    num_nulls_after = count_nulls(imputed_df)
-    num_imputed = num_nulls_before - num_nulls_after
-    print(f"Imputed {num_imputed} cells of missing information using SimpleImputer strategy {strategy}")
     return imputed_df, num_imputed
 
 def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lhs_size, error_threshold,

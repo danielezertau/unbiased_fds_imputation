@@ -1,5 +1,9 @@
+import os
+import uuid
 import numpy as np
-from src.utils import balance_prob_dist
+from sklearn.impute import SimpleImputer
+from src.utils import balance_prob_dist, plot_distribution, count_nulls
+
 
 def find_fds_for_rhs(func_deps, fd_rhs):
     matching_lhs = []
@@ -33,6 +37,12 @@ def get_possible_completions(func_deps, fd_rhs, row, no_null_df, balancing_power
     if imputation_prob.sum() == 0:
         return None, None
     
+    if balancing_power != 1:
+        os.makedirs("./figs", exist_ok=True)
+        plot_distribution(fd_rhs_values, imputation_prob, fd_rhs_col_name,
+                          f"./figs/{uuid.uuid4()}-{fd_rhs_col_name}-unbalanced.pdf")
+        plot_distribution(fd_rhs_values, balance_prob_dist(imputation_prob, balancing_power), fd_rhs_col_name,
+                          f"./figs/{uuid.uuid4()}-{fd_rhs_col_name}-balanced.pdf")
     return fd_rhs_values, balance_prob_dist(imputation_prob, balancing_power)
 
 def get_imputation_distribution(no_null_df, row, lhs_col_names, fd_rhs_col_name):
@@ -82,3 +92,14 @@ def get_imputation_sucess_rate(before_df, after_df, ground_truth_df):
     success_rate = num_correct / num_imputed if num_imputed > 0 else 0
 
     return success_rate
+
+def impute_with_simp_imp_and_report(df, strategy):
+    num_nulls_before = count_nulls(df)
+    print(f"Imputing with SimpleImputer strategy {strategy}")
+    imp = SimpleImputer(strategy=strategy)
+    imputed_df = df.copy()
+    imputed_df[:] = imp.fit_transform(df)
+    num_nulls_after = count_nulls(imputed_df)
+    num_imputed = num_nulls_before - num_nulls_after
+    print(f"Imputed {num_imputed} cells of missing information using SimpleImputer strategy {strategy}")
+    return imputed_df, num_imputed
