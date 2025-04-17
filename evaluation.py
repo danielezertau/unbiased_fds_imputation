@@ -32,7 +32,6 @@ def rand_null_data(input_file_dir, input_filename, args, num_null_cells, num_exp
     correct_imp_ub, correct_imp_b, correct_imp_s = 0, 0, 0
     for i in range(num_experiments):
         print(f"\n\nRunning experiment number {i+1}")
-        # Create binary mask
 
         # Set NULLs in random cells
         rand_null_df = set_rand_nulls(no_null_df, num_null_cells)
