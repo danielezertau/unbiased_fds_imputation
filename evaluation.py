@@ -2,7 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 from fd_imp_cli import cli_main
-from src.imputation import get_imputation_sucess_rate
+from src.imputation import get_imputation_sucess_rate, impute_with_simp_imp_and_report
+
 
 def set_rand_nulls(no_null_df, num_null_cells):
     n_rows, n_cols = no_null_df.shape
@@ -87,5 +88,26 @@ def print_avg_results(sum_imp_ub, correct_imp_ub, sum_imp_b, correct_imp_b, sum_
     print(f"Average fraction of imputed tuples with SimpleImputer: {sum_imp_s / num_experiments}")
     print(f"Average fraction of correctly imputed cells with SimpleImputer: {correct_imp_s / num_experiments}")
 
+def baseline(num_experiments):
+    for input_file_path, num_null_cells in [("./data/adult-rand-500.csv", 25), ("./data/adult-rand-500.csv", 50),
+     ("./data/adult-rand-1000.csv", 50), ("./data/adult-rand-1000.csv", 100)]:
+
+        print("#" * 180)
+        print(input_file_path, num_null_cells)
+        input_df = pd.read_csv(input_file_path)
+        no_null_df = input_df[input_df.notnull().all(axis=1)]
+        sum_success = 0
+        for i in range(num_experiments):
+            print(f"\n\nRunning experiment number {i+1}")
+            rand_null_df = set_rand_nulls(no_null_df, num_null_cells)
+    
+            imputed_df, _ = impute_with_simp_imp_and_report(rand_null_df, "most_frequent")
+            success_rate = get_imputation_sucess_rate(rand_null_df, imputed_df, no_null_df)
+            print(f"Most frequent imputation success rate: {success_rate}")
+            sum_success += success_rate
+    
+        print(f"Average success rate: {sum_success / num_experiments}")
+    
 if __name__ == '__main__':
+    baseline(50)
     rand_null_expr()
