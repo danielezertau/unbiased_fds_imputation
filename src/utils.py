@@ -41,4 +41,4 @@ def read_db(path, ignore_nulls):
         return [(list(hashes[k].values())) for k in sorted(hashes.keys())], num_lines
 
 def count_nulls(df):
-    return df.isnull().values.sum()
+    return df.isnull().values.sum().item()

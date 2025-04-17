@@ -66,4 +66,19 @@ def impute_by_func_deps(df, func_deps, balancing_power):
     no_null_df = df[df.notnull().all(axis=1)]
     for i, row in rows_with_nulls.iterrows():
         impute_row(df, no_null_df, row, i, func_deps, balancing_power)
-    return df
+
+def get_imputation_sucess_rate(before_df, after_df, ground_truth_df):
+    # Where the value was originally missing
+    missing_mask = before_df.isna().values
+
+    # Where the imputation actually filled something in
+    imputed_mask = missing_mask & after_df.notna().values
+
+    # Where the imputed value is equal to the ground truth
+    correct_imputations = (after_df.values == ground_truth_df.values) & imputed_mask
+
+    num_correct = correct_imputations.sum().sum()
+    num_imputed = imputed_mask.sum().sum()
+    success_rate = num_correct / num_imputed if num_imputed > 0 else 0
+
+    return success_rate
