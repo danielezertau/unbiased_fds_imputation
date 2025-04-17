@@ -59,9 +59,9 @@ def rand_null_expr():
             '--min_num_partitions', '2',
             '--max_lhs_size', '3',
             '--error_threshold', err_thresh,
-            '--use_biased_fds', 'True',
+            '--use_biased_fds', True,
             '--balancing_power', '0.5',
-            '--use_simple_imputer', 'True',
+            '--use_simple_imputer', True,
             '--simple_imputer_strategy', 'most_frequent'
         ]
     
