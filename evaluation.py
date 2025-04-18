@@ -19,7 +19,7 @@ def set_rand_nulls(no_null_df, num_null_cells):
     return new_df
 
 
-def rand_null_data(input_file_dir, input_filename, args, num_null_cells, num_experiments):
+def rand_null_data(input_file_dir, input_filename, args, num_null_cells, num_experiment_iterations):
     # Params and setup
     eval_dir = "./eval"
     os.makedirs(eval_dir, exist_ok=True)
@@ -31,7 +31,7 @@ def rand_null_data(input_file_dir, input_filename, args, num_null_cells, num_exp
 
     sum_imp_ub, sum_imp_b, sum_imp_s = 0, 0, 0
     correct_imp_ub, correct_imp_b, correct_imp_s = 0, 0, 0
-    for i in range(num_experiments):
+    for i in range(num_experiment_iterations):
         print(f"\n\nRunning experiment number {i+1}")
 
         # Set NULLs in random cells
@@ -57,13 +57,10 @@ def rand_null_data(input_file_dir, input_filename, args, num_null_cells, num_exp
         sum_imp_b += imp_b / num_null_cells
         sum_imp_s += imp_s / num_null_cells
 
-    print_avg_results(sum_imp_ub, correct_imp_ub, sum_imp_b, correct_imp_b, sum_imp_s, correct_imp_s, num_experiments)
+    print_avg_results(sum_imp_ub, correct_imp_ub, sum_imp_b, correct_imp_b, sum_imp_s, correct_imp_s, num_experiment_iterations)
 
-def rand_null_expr():
-    for (input_file, err_thresh, num_null) in [("adult-rand-1000", "0.025", 50), ("adult-rand-1000", "0.05", 50),
-                                               ("adult-rand-1000", "0.1", 50),
-                                               ("adult-rand-1000", "0.15", 50), ("adult-rand-1000", "0.2", 50),
-                                               ("adult-rand-1000", "0.35", 50), ("adult-rand-1000", "0.4", 50)]:
+def rand_null_with_config(config_list, num_experiment_iterations):
+    for (input_file, err_thresh, num_null) in config_list:
         args_dict = [
             '--data_dir', "./eval/",
             '--cache_dir', "./eval/cache",
@@ -76,30 +73,43 @@ def rand_null_expr():
             '--use_simple_imputer', 'True',
             '--simple_imputer_strategy', 'most_frequent'
         ]
-    
+
         print("#" * 180)
         print(input_file, err_thresh, num_null)
-        rand_null_data("./data", input_file, args_dict, num_null, 50)    
+        rand_null_data("./data", input_file, args_dict, num_null, num_experiment_iterations)
 
-def print_avg_results(sum_imp_ub, correct_imp_ub, sum_imp_b, correct_imp_b, sum_imp_s, correct_imp_s, num_experiments):
+def rand_null_expr(num_experiment_iterations):
+    adult_1000_expr = [("adult-rand-1000", "0.025", 50), ("adult-rand-1000", "0.05", 50),
+     ("adult-rand-1000", "0.1", 50),
+     ("adult-rand-1000", "0.15", 50), ("adult-rand-1000", "0.2", 50),
+     ("adult-rand-1000", "0.35", 50), ("adult-rand-1000", "0.4", 50)]
+    varying_data_size = [("adult-rand-500", "0.1", 50), ("adult-rand-1000", "0.1", 100),
+                         ("adult-rand-2500", "0.1", 100), ("adult-rand-5000", "0.2", 100)]
+
+    rand_null_with_config(adult_1000_expr)
+    rand_null_with_config(varying_data_size, num_experiment_iterations)
+
+def print_avg_results(sum_imp_ub, correct_imp_ub, sum_imp_b, correct_imp_b, sum_imp_s, correct_imp_s, num_experiment_iterations):
     print("\n\n RESULTS:")
-    print(f"Average fraction of imputed tuples with unbiased FDs: {sum_imp_ub / num_experiments}")
-    print(f"Average fraction of correctly imputed cells with unbiased FDs: {correct_imp_ub / num_experiments}")
-    print(f"Average fraction of imputed tuples with biased FDs: {sum_imp_b / num_experiments}")
-    print(f"Average fraction of correctly imputed cells with biased FDs: {correct_imp_b / num_experiments}")
-    print(f"Average fraction of imputed tuples with SimpleImputer: {sum_imp_s / num_experiments}")
-    print(f"Average fraction of correctly imputed cells with SimpleImputer: {correct_imp_s / num_experiments}")
+    print(f"Average fraction of imputed tuples with unbiased FDs: {sum_imp_ub / num_experiment_iterations}")
+    print(f"Average fraction of correctly imputed cells with unbiased FDs: {correct_imp_ub / num_experiment_iterations}")
+    print(f"Average fraction of imputed tuples with biased FDs: {sum_imp_b / num_experiment_iterations}")
+    print(f"Average fraction of correctly imputed cells with biased FDs: {correct_imp_b / num_experiment_iterations}")
+    print(f"Average fraction of imputed tuples with SimpleImputer: {sum_imp_s / num_experiment_iterations}")
+    print(f"Average fraction of correctly imputed cells with SimpleImputer: {correct_imp_s / num_experiment_iterations}")
 
-def baseline(num_experiments):
+def baseline(num_experiment_iterations):
     for input_file_path, num_null_cells in [("./data/adult-rand-500.csv", 25), ("./data/adult-rand-500.csv", 50),
-     ("./data/adult-rand-1000.csv", 50), ("./data/adult-rand-1000.csv", 100)]:
+     ("./data/adult-rand-1000.csv", 50), ("./data/adult-rand-1000.csv", 100), 
+     ("./data/adult-rand-2500.csv", 125), ("./data/adult-rand-2500.csv", 250),
+     ("./data/adult-rand-5000.csv", 250), ("./data/adult-rand-2500.csv", 500)]:
 
         print("#" * 180)
         print(input_file_path, num_null_cells)
         input_df = pd.read_csv(input_file_path)
         no_null_df = input_df[input_df.notnull().all(axis=1)]
         sum_success = 0
-        for i in range(num_experiments):
+        for i in range(num_experiment_iterations):
             print(f"\n\nRunning experiment number {i+1}")
             rand_null_df = set_rand_nulls(no_null_df, num_null_cells)
     
@@ -108,8 +118,8 @@ def baseline(num_experiments):
             print(f"Most frequent imputation success rate: {success_rate}")
             sum_success += success_rate
     
-        print(f"Average success rate: {sum_success / num_experiments}")
+        print(f"Average success rate: {sum_success / num_experiment_iterations}")
     
 if __name__ == '__main__':
-    baseline(50)
-    rand_null_expr()
+    # baseline(50)
+    rand_null_expr(50)
