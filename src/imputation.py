@@ -38,12 +38,13 @@ def get_possible_completions(func_deps, fd_rhs, row, no_null_df, balancing_power
         return None, None
     
     if balancing_power != 1:
+        lhs_cols = [", ".join(column_names[list(lhs)].values) for lhs in matching_lhs][:4]
         os.makedirs("./figs", exist_ok=True)
         fig_uuid = uuid.uuid4()
         plot_distribution(fd_rhs_values, imputation_prob, fd_rhs_col_name,
-                          f"./figs/{fig_uuid}-{fd_rhs_col_name}-unbalanced.pdf")
+                          f"./figs/{fig_uuid}-{fd_rhs_col_name}-{lhs_cols}-unbalanced.pdf")
         plot_distribution(fd_rhs_values, balance_prob_dist(imputation_prob, balancing_power), fd_rhs_col_name,
-                          f"./figs/{fig_uuid}-{fd_rhs_col_name}-balanced.pdf")
+                          f"./figs/{fig_uuid}-{fd_rhs_col_name}-{lhs_cols}-balanced.pdf")
     return fd_rhs_values, balance_prob_dist(imputation_prob, balancing_power)
 
 def get_imputation_distribution(no_null_df, row, lhs_col_names, fd_rhs_col_name):
