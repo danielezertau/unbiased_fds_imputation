@@ -60,8 +60,10 @@ def rand_null_data(input_file_dir, input_filename, args, num_null_cells, num_exp
     print_avg_results(sum_imp_ub, correct_imp_ub, sum_imp_b, correct_imp_b, sum_imp_s, correct_imp_s, num_experiments)
 
 def rand_null_expr():
-    for (input_file, err_thresh, num_null) in [("adult-rand-500", "0.03", 25), ("adult-rand-500", "0.05", 25),
-                                               ("adult-rand-1000", "0.06", 50), ("adult-rand-1000", "0.1", 50)]:
+    for (input_file, err_thresh, num_null) in [("adult-rand-1000", "0.025", 50), ("adult-rand-1000", "0.05", 50),
+                                               ("adult-rand-1000", "0.1", 50),
+                                               ("adult-rand-1000", "0.15", 50), ("adult-rand-1000", "0.2", 50),
+                                               ("adult-rand-1000", "0.35", 50), ("adult-rand-1000", "0.4", 50)]:
         args_dict = [
             '--data_dir', "./eval/",
             '--cache_dir', "./eval/cache",
