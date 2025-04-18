@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Parameters
-subset_size = 5000  # or any number of rows you want to sample
+subset_size = 5000
 input_file = 'data/adult.csv'
 output_file = f'data/adult-rand-{subset_size}.csv'
 
