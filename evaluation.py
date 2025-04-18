@@ -86,7 +86,7 @@ def rand_null_expr(num_experiment_iterations):
     varying_data_size = [("adult-rand-500", "0.1", 50), ("adult-rand-1000", "0.1", 100),
                          ("adult-rand-2500", "0.1", 100), ("adult-rand-5000", "0.2", 100)]
 
-    rand_null_with_config(adult_1000_expr)
+    rand_null_with_config(adult_1000_expr, num_experiment_iterations)
     rand_null_with_config(varying_data_size, num_experiment_iterations)
 
 def print_avg_results(sum_imp_ub, correct_imp_ub, sum_imp_b, correct_imp_b, sum_imp_s, correct_imp_s, num_experiment_iterations):
