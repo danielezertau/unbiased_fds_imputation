@@ -53,6 +53,7 @@ def plot_distribution(values, probs, var_name, output_file):
 
     plt.tight_layout()
     plt.savefig(output_file)
+    plt.close()
 
 
 def count_nulls(df):
