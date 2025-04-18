@@ -29,8 +29,8 @@ def rand_null_data(input_file_dir, input_filename, args, num_null_cells, num_exp
     # Filter out null values
     no_null_df = input_df[input_df.notnull().all(axis=1)]
 
-    sum_imp_ub, sum_imp_b, sum_imp_s = 0, 0, 0
-    correct_imp_ub, correct_imp_b, correct_imp_s = 0, 0, 0
+    sum_imp_ub, sum_imp_b, sum_imp_s, sum_imp_total = 0, 0, 0, 0
+    correct_imp_ub, correct_imp_b, correct_imp_s, correct_imp_total = 0, 0, 0, 0
     for i in range(num_experiment_iterations):
         print(f"\n\nRunning experiment number {i+1}")
 
@@ -48,16 +48,21 @@ def rand_null_data(input_file_dir, input_filename, args, num_null_cells, num_exp
         ub_correct = get_imputation_sucess_rate(rand_null_df, df_ub, no_null_df)
         b_correct = get_imputation_sucess_rate(df_ub, df_b, no_null_df)
         s_correct = get_imputation_sucess_rate(df_b, df_s, no_null_df)
+        total_correct = get_imputation_sucess_rate(rand_null_df, df_s, no_null_df)
 
         # Update metrics
         correct_imp_ub += ub_correct
         correct_imp_b += b_correct
         correct_imp_s += s_correct
+        correct_imp_total += total_correct
+
         sum_imp_ub += imp_ub / num_null_cells
         sum_imp_b += imp_b / num_null_cells
         sum_imp_s += imp_s / num_null_cells
+        sum_imp_total += (imp_ub + imp_b + imp_s) / num_null_cells
 
-    print_avg_results(sum_imp_ub, correct_imp_ub, sum_imp_b, correct_imp_b, sum_imp_s, correct_imp_s, num_experiment_iterations)
+    print_avg_results(sum_imp_ub, correct_imp_ub, sum_imp_b, correct_imp_b, sum_imp_s, correct_imp_s,
+                      correct_imp_total, num_experiment_iterations)
 
 def rand_null_with_config(config_list, num_experiment_iterations):
     for (input_file, err_thresh, num_null) in config_list:
@@ -89,8 +94,10 @@ def rand_null_expr(num_experiment_iterations):
     rand_null_with_config(adult_1000_expr, num_experiment_iterations)
     rand_null_with_config(varying_data_size, num_experiment_iterations)
 
-def print_avg_results(sum_imp_ub, correct_imp_ub, sum_imp_b, correct_imp_b, sum_imp_s, correct_imp_s, num_experiment_iterations):
+def print_avg_results(sum_imp_ub, correct_imp_ub, sum_imp_b, correct_imp_b, sum_imp_s, correct_imp_s,
+                      correct_imp_total, num_experiment_iterations):
     print("\n\n RESULTS:")
+    print(f"Average total success rate: {correct_imp_total / num_experiment_iterations}")
     print(f"Average fraction of imputed tuples with unbiased FDs: {sum_imp_ub / num_experiment_iterations}")
     print(f"Average fraction of correctly imputed cells with unbiased FDs: {correct_imp_ub / num_experiment_iterations}")
     print(f"Average fraction of imputed tuples with biased FDs: {sum_imp_b / num_experiment_iterations}")
