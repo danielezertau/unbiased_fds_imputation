@@ -89,7 +89,7 @@ def rand_null_expr(num_experiment_iterations):
      ("adult-rand-1000", "0.15", 50), ("adult-rand-1000", "0.2", 50),
      ("adult-rand-1000", "0.35", 50), ("adult-rand-1000", "0.4", 50)]
     varying_data_size = [("adult-rand-500", "0.1", 50), ("adult-rand-1000", "0.1", 100),
-                         ("adult-rand-2500", "0.1", 100), ("adult-rand-5000", "0.2", 100)]
+                         ("adult-rand-2500", "0.1", 250), ("adult-rand-5000", "0.1", 500)]
 
     rand_null_with_config(adult_1000_expr, num_experiment_iterations)
     rand_null_with_config(varying_data_size, num_experiment_iterations)
