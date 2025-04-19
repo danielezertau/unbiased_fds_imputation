@@ -18,7 +18,7 @@ def mine_for_fds(csv_filename, col_names, min_num_partitions, max_lhs_size, erro
     biased_fds = {}
     unbiased_fds = {}
 
-    print("Checking for biases in functional dependencies")
+    print("\n\nChecking for biases in functional dependencies using an LLM")
     for lhs, rhs_group in tqdm(func_deps.items()):
         for rhs in rhs_group:
             if is_fd_biased(lhs=", ".join(indices_to_attr_name(col_names, lhs)),
@@ -36,7 +36,7 @@ def find_fds(csv_filename, cache_filename, min_num_partitions, max_lhs_size, err
     else:
         biased_fds, unbiased_fds = mine_for_fds(csv_filename, col_names, min_num_partitions, max_lhs_size,
                                                 error_threshold)
-    print("BIASED FDS:")
+    print("\n\nBIASED FDS:")
     print_func_deps(biased_fds, col_names)
 
     print("UNBIASED FDS:")
@@ -63,7 +63,7 @@ def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lh
                                         error_threshold)
     full_df = pd.read_csv(csv_filename)
     
-    print(f"Total number of NULL cells: {count_nulls(full_df)}")
+    print(f"Total number of NULL cells in input data: {count_nulls(full_df)}")
 
     # Impute with unbiased FDs
     df_unbiased, num_imputed_unbiased = impute_with_fds_and_report(full_df, unbiased_fds, "unbiased", 1)
@@ -81,5 +81,6 @@ def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lh
         df_simple = df_biased
 
     df_simple.to_csv(output_filename, index=False, na_rep="NULL")
+    print(f"Total number of NULL cells after imputation: {count_nulls(df_simple)}")
     
     return df_unbiased, df_biased, df_simple, num_imputed_unbiased, num_imputed_biased, num_imputed_simple
