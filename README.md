@@ -30,7 +30,13 @@ The fd-imp-cli can be used in order to run the project.
 - `--max_lhs_size`: The maximal number of attributes in the LHS of a functional dependency. Default is `3`. 
 - `--error_threshold`: The allowed error rate for a functional dependency. Default is `0.06`.
 - `--data_dir`: The directory in which we can find the input data in csv format. Default is `./data`.
-- `--data_filename`: The input data filename (excluding the .csv suffix). Default is `adult-rand-1000`. 
+- `--data_filename`: The input data filename (excluding the .csv suffix). Default is `adult-rand-1000`.
+- `--cache_dir`: The cache directory. Default is `./cache`.
+- `--output_dir`: The output directory. Default is `./out`.
+- `--use_biased_fds`: Whether to use biased FDs for imputation. Default is `True`.
+- `--balancing_power`: The power to use for balancing biased FDs probability distributions. Lower value means more balancing. Default is `0.5`. 
+- `--use_simple_imputer`: Whether to use scikit-learn's SimpleImputer If we still have NULLs after the FD imputation. Default is `True`.
+- `--simple_imputer_strategy`: Simple imputation Strategy, if needed. Default is `most_frequent`.
 
 ### Output
 Since mining for functional dependencies and querying an LLM on their bias is time intensive, a cache with the resulting FDs is created in the`${data_dir}/cache` directory. 
