@@ -83,4 +83,5 @@ def find_fds_and_impute(csv_filename, cache_filename, min_num_partitions, max_lh
     df_simple.to_csv(output_filename, index=False, na_rep="NULL")
     print(f"Total number of NULL cells after imputation: {count_nulls(df_simple)}")
     
+    print(f"\n\nOutput can be found in {output_filename}")
     return df_unbiased, df_biased, df_simple, num_imputed_unbiased, num_imputed_biased, num_imputed_simple
