@@ -42,7 +42,7 @@ def parse_args(args):
 def cli_main(args=None):
     args = parse_args(args=args)
 
-    print(f"Running imputation with config: {args}")
+    print(f"Running imputation with config: {vars(args)}")
 
     os.makedirs(args.output_dir, exist_ok=True)
     os.makedirs(args.cache_dir, exist_ok=True)
