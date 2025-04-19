@@ -1,7 +1,8 @@
 .idea/
 venv/
 *.iml
-data/
+data/cache
+data/out
 config/
 eval/
 figs/
