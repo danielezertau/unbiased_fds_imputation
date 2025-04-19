@@ -14,16 +14,17 @@ def parse_args(args):
     parser.add_argument("--error_threshold", type=float, default=0.06,
                         help="Approximate functional dependency error threshold")
 
-    parser.add_argument("--use_biased_fds", type=bool, default=True,
-                        help="Whether to use biased FDs for imputation")
+    parser.add_argument('--no_biased_fds', dest='use_biased_fds', action='store_false',
+                        help="Don't use biased FDs")
+    parser.set_defaults(use_biased_fds=True)
 
     parser.add_argument("--balancing_power", type=float, default=0.5,
                         help="The power to use for balancing biased FDs probability distributions. "
                              "Lower value means more balancing.")
 
-    parser.add_argument("--use_simple_imputer", type=bool, default=True,
-                        help="Whether to use scikit-learn's SimpleImputer If we still have NULLs after "
-                             "the FD imputation.")
+    parser.add_argument('--no_simple_imputer', dest='use_simple_imputer', action='store_false',
+                        help="Don't use biased FDs")
+    parser.set_defaults(use_simple_imputer=True)
 
     parser.add_argument("--simple_imputer_strategy", type=str, default="most_frequent",
                         help="Simple imputation Strategy, if needed.")

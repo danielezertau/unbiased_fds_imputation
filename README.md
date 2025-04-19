@@ -33,9 +33,9 @@ The fd-imp-cli can be used in order to run the project.
 - `--data_filename`: The input data filename (excluding the .csv suffix). Default is `adult-rand-1000`.
 - `--cache_dir`: The cache directory. Default is `./cache`.
 - `--output_dir`: The output directory. Default is `./out`.
-- `--use_biased_fds`: Whether to use biased FDs for imputation. Default is `True`.
+- `--no_biased_fds`: Disable the use of biased FDs for imputation. Default is to use biased FDs.
 - `--balancing_power`: The power to use for balancing biased FDs probability distributions. Lower value means more balancing. Default is `0.5`. 
-- `--use_simple_imputer`: Whether to use scikit-learn's SimpleImputer If we still have NULLs after the FD imputation. Default is `True`.
+- `--no_simple_imputer`: Disable the use of scikit-learn's SimpleImputer. Default it to use it if needed.
 - `--simple_imputer_strategy`: Simple imputation Strategy, if needed. Default is `most_frequent`.
 
 ### Output
